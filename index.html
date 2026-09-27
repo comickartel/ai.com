@@ -1,0 +1,1150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rayolla Nexus AI // Elite Command Console v3.0</title>
+<style>
+/* =========================================================
+   RAYOLLA NEXUS AI // COMMAND CONSOLE v3 - ELITE EDITION
+========================================================= */
+
+:root {
+    --cyan: #00f5ff;
+    --cyan2: #00a8ff;
+    --green: #39ff88;
+    --blue: #168cff;
+    --purple: #9b5cff;
+    --yellow: #ffe66d;
+    --orange: #ff9d3d;
+    --red: #ff3d71;
+
+    --bg: #010406;
+    --panel: rgba(2, 10, 15, .95);
+    --panel2: rgba(4, 16, 23, .95);
+
+    --border: rgba(0,245,255,.22);
+    --border-bright: rgba(0,245,255,.6);
+
+    --text: #eaffff;
+    --muted: #66858d;
+    --muted2: #41636b;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    min-height: 100vh;
+    overflow-x: hidden;
+    font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    color: var(--text);
+    background: var(--bg);
+}
+
+/* =========================================================
+   BACKGROUND & FX
+========================================================= */
+
+.background {
+    position: fixed;
+    inset: 0;
+    z-index: -20;
+    overflow: hidden;
+    background: 
+        radial-gradient(circle at 50% 10%, rgba(0,245,255,.13), transparent 35%),
+        radial-gradient(circle at 5% 90%, rgba(57,255,136,.08), transparent 30%),
+        radial-gradient(circle at 100% 50%, rgba(155,92,255,.08), transparent 30%),
+        linear-gradient(135deg, #010406, #000203 70%);
+}
+
+.scanlines {
+    position: absolute;
+    inset: 0;
+    background: repeating-linear-gradient(to bottom, transparent 0, transparent 3px, rgba(0,255,255,.02) 4px);
+    pointer-events: none;
+}
+
+.grid {
+    position: absolute;
+    width: 180%;
+    height: 100%;
+    left: -40%;
+    top: 30%;
+    opacity: .14;
+    background-image: 
+        linear-gradient(rgba(0,245,255,.18) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0,245,255,.18) 1px, transparent 1px);
+    background-size: 48px 48px;
+    transform: perspective(650px) rotateX(62deg);
+    transform-origin: center top;
+    animation: gridMove 7s linear infinite;
+}
+
+@keyframes gridMove {
+    from { transform: perspective(650px) rotateX(62deg) translateY(0); }
+    to { transform: perspective(650px) rotateX(62deg) translateY(48px); }
+}
+
+.glow {
+    position: absolute;
+    width: 500px;
+    height: 500px;
+    border-radius: 50%;
+    filter: blur(140px);
+    opacity: .25;
+    animation: glowMove 11s ease-in-out infinite alternate;
+}
+
+.glow.one { left: -220px; top: -220px; background: var(--cyan); }
+.glow.two { right: -240px; bottom: -230px; background: var(--purple); animation-delay: 2s; }
+
+@keyframes glowMove {
+    from { transform: translate(0,0) scale(1); }
+    to { transform: translate(90px,70px) scale(1.25); }
+}
+
+.particles {
+    position: fixed;
+    inset: 0;
+    z-index: -10;
+    pointer-events: none;
+}
+
+.particle {
+    position: absolute;
+    width: 2px;
+    height: 2px;
+    background: var(--cyan);
+    border-radius: 50%;
+    box-shadow: 0 0 10px var(--cyan);
+    animation: particleUp linear infinite;
+}
+
+@keyframes particleUp {
+    from { transform: translateY(110vh); opacity: 0; }
+    20% { opacity: .9; }
+    80% { opacity: .4; }
+    to { transform: translateY(-10vh); opacity: 0; }
+}
+
+/* =========================================================
+   APP CONTAINER
+========================================================= */
+
+.app {
+    width: min(1240px, 96%);
+    min-height: 94vh;
+    margin: 3vh auto;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    background: linear-gradient(145deg, rgba(3,15,22,.96), rgba(1,6,10,.96));
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    backdrop-filter: blur(24px);
+    box-shadow: 0 0 90px rgba(0,220,255,.08), 0 30px 100px rgba(0,0,0,.6), inset 0 0 80px rgba(0,245,255,.02);
+}
+
+/* TOP BAR */
+.topbar {
+    height: 38px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 18px;
+    color: var(--muted);
+    font-family: "Courier New", monospace;
+    font-size: 10px;
+    letter-spacing: 1.3px;
+    border-bottom: 1px solid rgba(0,245,255,.09);
+    background: rgba(0,0,0,.3);
+}
+
+.topbar-left, .topbar-right {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+
+.system-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--green);
+    box-shadow: 0 0 10px var(--green);
+}
+
+/* HEADER */
+.header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 18px 24px;
+    border-bottom: 1px solid var(--border);
+    background: rgba(2,11,16,.85);
+}
+
+.brand {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.logo {
+    position: relative;
+    width: 58px;
+    height: 66px;
+    flex-shrink: 0;
+    clip-path: polygon(50% 0, 94% 16%, 87% 70%, 50% 100%, 13% 70%, 6% 16%);
+    background: linear-gradient(145deg, var(--cyan), var(--blue) 50%, #07151f 51%);
+    filter: drop-shadow(0 0 8px var(--cyan)) drop-shadow(0 0 20px rgba(0,245,255,.4));
+    animation: shieldPulse 3s infinite;
+}
+
+.logo::before {
+    content: "";
+    position: absolute;
+    inset: 7px;
+    clip-path: polygon(50% 0, 94% 16%, 87% 70%, 50% 100%, 13% 70%, 6% 16%);
+    background: #040d14;
+}
+
+.logo::after {
+    content: "RN";
+    position: absolute;
+    left: 14px;
+    top: 22px;
+    color: var(--cyan);
+    font-family: "Courier New", monospace;
+    font-size: 11px;
+    font-weight: bold;
+    letter-spacing: 1px;
+    text-shadow: 0 0 8px var(--cyan);
+}
+
+@keyframes shieldPulse {
+    0%, 85%, 100% { transform: scale(1); }
+    90% { transform: scale(1.07); filter: brightness(1.6) drop-shadow(0 0 14px var(--cyan)); }
+}
+
+.brand h1 {
+    font-size: 25px;
+    letter-spacing: 3px;
+    font-family: "Courier New", monospace;
+}
+
+.brand h1 span {
+    color: var(--cyan);
+    text-shadow: 0 0 10px var(--cyan), 0 0 25px rgba(0,245,255,.5);
+}
+
+.brand small {
+    display: block;
+    margin-top: 4px;
+    color: var(--muted);
+    font-family: "Courier New", monospace;
+    font-size: 10px;
+    letter-spacing: 1.2px;
+}
+
+/* HEADER RIGHT ACTIONS */
+.header-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.status {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    padding: 8px 14px;
+    color: var(--green);
+    border: 1px solid rgba(57,255,136,.2);
+    border-radius: 999px;
+    background: rgba(57,255,136,.04);
+    font-family: "Courier New", monospace;
+    font-size: 10px;
+    letter-spacing: 1.4px;
+}
+
+.status-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--green);
+    box-shadow: 0 0 12px var(--green);
+    animation: statusPulse 1.2s infinite;
+}
+
+@keyframes statusPulse {
+    50% { opacity: .3; transform: scale(.6); }
+}
+
+/* COMIC HACKER HUB EXTERNAL BUTTON */
+.external-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 9px 16px;
+    color: var(--bg);
+    background: linear-gradient(135deg, var(--cyan), var(--green));
+    border: none;
+    border-radius: 8px;
+    font-family: "Courier New", monospace;
+    font-size: 10px;
+    font-weight: bold;
+    letter-spacing: 1px;
+    text-decoration: none;
+    cursor: pointer;
+    box-shadow: 0 0 20px rgba(0,245,255,.3);
+    transition: .2s;
+}
+
+.external-btn:hover {
+    transform: scale(1.04);
+    box-shadow: 0 0 30px rgba(0,245,255,.6);
+}
+
+/* MODULE BAR */
+.modules {
+    display: flex;
+    gap: 8px;
+    padding: 12px 24px;
+    overflow-x: auto;
+    border-bottom: 1px solid rgba(0,245,255,.09);
+    background: rgba(0,0,0,.18);
+}
+
+.modules::-webkit-scrollbar { height: 4px; }
+.modules::-webkit-scrollbar-thumb { background: var(--border); }
+
+.module {
+    flex-shrink: 0;
+    padding: 6px 12px;
+    color: #6d9ca4;
+    border: 1px solid rgba(0,245,255,.12);
+    border-radius: 6px;
+    font-family: "Courier New", monospace;
+    font-size: 10px;
+    letter-spacing: 1px;
+    cursor: pointer;
+    transition: .2s;
+}
+
+.module:hover, .module.active {
+    color: var(--cyan);
+    border-color: rgba(0,245,255,.45);
+    background: rgba(0,245,255,.06);
+    box-shadow: 0 0 15px rgba(0,245,255,.12);
+}
+
+/* TOOLBAR */
+.toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 24px;
+    border-bottom: 1px solid rgba(0,245,255,.08);
+    color: var(--muted);
+    font-family: "Courier New", monospace;
+    font-size: 9px;
+}
+
+.toolbar-left {
+    display: flex;
+    gap: 10px;
+}
+
+.tool-btn {
+    padding: 6px 11px;
+    color: #72a0a8;
+    background: transparent;
+    border: 1px solid rgba(0,245,255,.14);
+    border-radius: 5px;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 9px;
+    transition: .2s;
+}
+
+.tool-btn:hover {
+    color: var(--cyan);
+    border-color: rgba(0,245,255,.4);
+    background: rgba(0,245,255,.06);
+}
+
+/* CHAT AREA */
+.chat {
+    flex: 1;
+    min-height: 520px;
+    max-height: 60vh;
+    overflow-y: auto;
+    padding: 30px 26px;
+}
+
+.chat::-webkit-scrollbar { width: 6px; }
+.chat::-webkit-scrollbar-track { background: transparent; }
+.chat::-webkit-scrollbar-thumb { background: #123b43; border-radius: 20px; }
+
+.message {
+    display: flex;
+    gap: 14px;
+    margin-bottom: 24px;
+    animation: messageIn .28s ease;
+}
+
+@keyframes messageIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.message.user {
+    justify-content: flex-end;
+}
+
+.avatar {
+    width: 40px;
+    height: 40px;
+    flex-shrink: 0;
+    display: grid;
+    place-items: center;
+    border-radius: 10px;
+    background: #071c23;
+    border: 1px solid rgba(0,245,255,.35);
+    box-shadow: 0 0 15px rgba(0,245,255,.1);
+    font-size: 18px;
+}
+
+.user .avatar {
+    order: 2;
+    background: #0b1724;
+    border-color: rgba(60,150,255,.4);
+}
+
+.bubble {
+    position: relative;
+    max-width: min(840px, 86%);
+    padding: 18px 20px;
+    color: #e3ffff;
+    line-height: 1.68;
+    font-size: 14px;
+    background: linear-gradient(145deg, rgba(7,28,36,.94), rgba(4,18,25,.94));
+    border: 1px solid rgba(0,245,255,.16);
+    border-radius: 6px 16px 16px 16px;
+    box-shadow: 0 15px 40px rgba(0,0,0,.25);
+}
+
+.user .bubble {
+    background: linear-gradient(145deg, rgba(10,33,54,.96), rgba(6,21,38,.96));
+    border: 1px solid rgba(60,150,255,.3);
+    border-radius: 16px 6px 16px 16px;
+}
+
+.response-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 12px;
+}
+
+.module-tag {
+    display: inline-block;
+    padding: 5px 9px;
+    color: var(--cyan);
+    background: rgba(0,245,255,.06);
+    border: 1px solid rgba(0,245,255,.25);
+    border-radius: 4px;
+    font-family: "Courier New", monospace;
+    font-size: 9px;
+    letter-spacing: 1.1px;
+}
+
+.threat {
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-family: "Courier New", monospace;
+    font-size: 8px;
+    letter-spacing: 1px;
+}
+
+.threat.info { color: var(--green); border: 1px solid rgba(57,255,136,.25); background: rgba(57,255,136,.05); }
+.threat.medium { color: var(--yellow); border: 1px solid rgba(255,230,109,.25); background: rgba(255,230,109,.05); }
+.threat.high { color: var(--red); border: 1px solid rgba(255,61,113,.25); background: rgba(255,61,113,.05); }
+
+.cyber-title {
+    margin-bottom: 10px;
+    color: #fff;
+    font-size: 16px;
+    font-weight: 700;
+    letter-spacing: .4px;
+}
+
+.vocab {
+    margin: 14px 0;
+    padding: 13px;
+    background: rgba(0,0,0,.25);
+    border-left: 2px solid var(--cyan);
+    font-family: "Courier New", monospace;
+    font-size: 11px;
+}
+
+.vocab-row {
+    display: grid;
+    grid-template-columns: 155px 1fr;
+    gap: 10px;
+    margin: 6px 0;
+}
+
+.vocab-key { color: var(--green); }
+.vocab-value { color: #97c0c7; }
+
+/* TERMINAL CODE BLOCKS */
+.terminal-block {
+    margin: 14px 0;
+    background: #02070a;
+    border: 1px solid rgba(0,245,255,.2);
+    border-radius: 6px;
+    overflow: hidden;
+    font-family: "Courier New", monospace;
+}
+
+.terminal-titlebar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 6px 12px;
+    background: #05141c;
+    border-bottom: 1px solid rgba(0,245,255,.15);
+    font-size: 10px;
+    color: var(--muted);
+}
+
+.terminal-dots {
+    display: flex;
+    gap: 5px;
+}
+
+.terminal-dots span {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #33545e;
+}
+.terminal-dots span:nth-child(1) { background: var(--red); }
+.terminal-dots span:nth-child(2) { background: var(--yellow); }
+.terminal-dots span:nth-child(3) { background: var(--green); }
+
+.terminal-content {
+    padding: 12px 14px;
+    color: #5afcd6;
+    font-size: 12px;
+    line-height: 1.5;
+    white-space: pre-wrap;
+    overflow-x: auto;
+}
+
+.tip {
+    margin-top: 14px;
+    padding: 12px 14px;
+    color: #c4e6ea;
+    background: linear-gradient(90deg, rgba(57,255,136,.06), transparent);
+    border-left: 2px solid var(--green);
+    font-size: 12px;
+}
+
+.tip b { color: var(--green); }
+
+/* SUGGESTIONS */
+.suggestions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 0 26px 14px;
+}
+
+.suggestion {
+    padding: 8px 12px;
+    color: #9adce2;
+    background: rgba(6,29,35,.7);
+    border: 1px solid rgba(0,245,255,.16);
+    border-radius: 6px;
+    cursor: pointer;
+    font-family: "Courier New", monospace;
+    font-size: 10px;
+    transition: .2s;
+}
+
+.suggestion:hover {
+    color: #fff;
+    border-color: var(--cyan);
+    background: rgba(0,100,120,.35);
+    box-shadow: 0 0 18px rgba(0,245,255,.18);
+    transform: translateY(-2px);
+}
+
+/* INPUT AREA */
+.input-area {
+    padding: 16px 24px 20px;
+    border-top: 1px solid rgba(0,245,255,.14);
+    background: rgba(1,8,12,.9);
+}
+
+.input-box {
+    display: flex;
+    gap: 10px;
+    padding: 8px;
+    background: rgba(4,20,26,.98);
+    border: 1px solid rgba(0,245,255,.25);
+    border-radius: 10px;
+    transition: .2s;
+}
+
+.input-box:focus-within {
+    border-color: rgba(0,245,255,.7);
+    box-shadow: 0 0 28px rgba(0,245,255,.12);
+}
+
+.prompt {
+    display: flex;
+    align-items: center;
+    padding-left: 10px;
+    color: var(--green);
+    font-family: "Courier New", monospace;
+    font-size: 13px;
+}
+
+#userInput {
+    flex: 1;
+    min-width: 0;
+    padding: 12px 8px;
+    color: #fff;
+    background: transparent;
+    border: none;
+    outline: none;
+    font-size: 14px;
+}
+
+#userInput::placeholder { color: #4b717b; }
+
+#sendBtn {
+    width: 52px;
+    height: 44px;
+    flex-shrink: 0;
+    border: none;
+    border-radius: 8px;
+    color: #001012;
+    background: linear-gradient(135deg, var(--cyan), var(--green));
+    cursor: pointer;
+    font-size: 18px;
+    font-weight: bold;
+    box-shadow: 0 0 20px rgba(0,245,255,.28);
+    transition: .2s;
+}
+
+#sendBtn:hover { transform: scale(1.05); box-shadow: 0 0 30px rgba(0,245,255,.55); }
+
+.footer {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 9px;
+    color: #3b5a63;
+    font-family: "Courier New", monospace;
+    font-size: 8px;
+    letter-spacing: .8px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="background">
+    <div class="grid"></div>
+    <div class="glow one"></div>
+    <div class="glow two"></div>
+    <div class="scanlines"></div>
+</div>
+<div class="particles" id="particles"></div>
+
+<div class="app">
+    <!-- TOP SYSTEM BAR -->
+    <div class="topbar">
+        <div class="topbar-left">
+            <span class="system-dot"></span>
+            <span>RAYOLLA://NEXUS-KERNEL-V3</span>
+            <span id="clock">00:00:00</span>
+        </div>
+        <div class="topbar-right">
+            <span>SECURE SHELL: ACTIVE</span>
+            <span>ENCRYPTION: AES-256</span>
+        </div>
+    </div>
+
+    <!-- HEADER -->
+    <header class="header">
+        <div class="brand">
+            <div class="logo"></div>
+            <div>
+                <h1><span>RAYOLLA</span> NEXUS AI</h1>
+                <small>ADVANCED CYBERSECURITY THREAT INTELLIGENCE & CODE GENERATOR</small>
+            </div>
+        </div>
+        <div class="header-actions">
+            <!-- Updated external link to comichacker.github.io/george/ -->
+            <a href="https://comichacker.github.io/george/" target="_blank" class="external-btn">
+                ⚡ COMIC HACKER HUB
+            </a>
+            <div class="status">
+                <span class="status-dot"></span>
+                <span>CORE ONLINE // ELITE</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- MODULES -->
+    <div class="modules">
+        <span class="module active" onclick="filterModule('ALL')">ALL MODULES</span>
+        <span class="module" onclick="filterModule('RECON')">RECON</span>
+        <span class="module" onclick="filterModule('WEBSEC')">WEBSEC</span>
+        <span class="module" onclick="filterModule('NETWORK')">NETWORK</span>
+        <span class="module" onclick="filterModule('BLUE TEAM')">BLUE TEAM</span>
+        <span class="module" onclick="filterModule('MALWARE')">MALWARE</span>
+        <span class="module" onclick="filterModule('CRYPTO')">CRYPTO</span>
+        <span class="module" onclick="filterModule('CLOUD')">CLOUD</span>
+        <span class="module" onclick="filterModule('DFIR')">DFIR</span>
+        <span class="module" onclick="filterModule('CTF')">CTF</span>
+    </div>
+
+    <!-- TOOLBAR -->
+    <div class="toolbar">
+        <div class="toolbar-left">
+            <button class="tool-btn" onclick="clearChat()">CLEAR BUFFER</button>
+            <button class="tool-btn" onclick="exportChat()">EXPORT LOGS</button>
+            <button class="tool-btn" onclick="showRandomTip()">SECURITY ADVISORY</button>
+        </div>
+        <div class="session">SESSION: <span id="sessionId">LOCAL</span></div>
+    </div>
+
+    <!-- CHAT -->
+    <main class="chat" id="chat">
+        <div class="message bot">
+            <div class="avatar">🛡️</div>
+            <div class="bubble">
+                <div class="response-header">
+                    <span class="module-tag">CORE // INITIALIZATION</span>
+                    <span class="threat info">SECURE</span>
+                </div>
+                <div class="cyber-title">RAYOLLA NEXUS AI INTELLIGENCE ENGINE ONLINE</div>
+                <p>Welcome back, Operator. The Rayolla Nexus AI core is calibrated with elite offensive and defensive databases, ready to produce instant documentation, security architectures, and functional code scripts.</p>
+                <div class="vocab">
+                    <div class="vocab-row"><span class="vocab-key">CAPABILITY</span><span class="vocab-value">Multi-domain vulnerability analysis & script synthesis</span></div>
+                    <div class="vocab-row"><span class="vocab-key">PROTOCOL</span><span class="vocab-value">Authorized technical reference & code generation</span></div>
+                </div>
+                <div class="tip"><b>SYSTEM READY //</b> Select a module, visit the Comic Hacker Hub via the top button, or type any query below to command the console.</div>
+            </div>
+        </div>
+    </main>
+
+    <!-- SUGGESTIONS -->
+    <div class="suggestions">
+        <button class="suggestion" onclick="askSuggestion('Explain reconnaissance and OSINT')">[RECON] OSINT</button>
+        <button class="suggestion" onclick="askSuggestion('Explain SQL injection')">[WEBSEC] SQLi</button>
+        <button class="suggestion" onclick="askSuggestion('What is XSS?')">[WEBSEC] XSS</button>
+        <button class="suggestion" onclick="askSuggestion('Explain zero trust architecture')">[NETWORK] ZERO TRUST</button>
+        <button class="suggestion" onclick="askSuggestion('What is SIEM and EDR?')">[BLUE] SIEM & EDR</button>
+        <button class="suggestion" onclick="askSuggestion('Explain malware analysis')">[MALWARE] ANALYSIS</button>
+        <button class="suggestion" onclick="askSuggestion('Explain AES and RSA cryptography')">[CRYPTO] CIPHERS</button>
+        <button class="suggestion" onclick="askSuggestion('What is cloud security posture management')">[CLOUD] CSPM</button>
+        <button class="suggestion" onclick="askSuggestion('Explain DFIR phases')">[DFIR] INCIDENT RESPONSE</button>
+        <button class="suggestion" onclick="askSuggestion('Give me python port scanner script')">[CODE] PYTHON SCANNER</button>
+    </div>
+
+    <!-- INPUT -->
+    <div class="input-area">
+        <div class="input-box">
+            <div class="prompt">></div>
+            <input id="userInput" type="text" autocomplete="off" placeholder="Query the Rayolla Nexus AI intelligence core or request security scripts...">
+            <button id="sendBtn">➤</button>
+        </div>
+        <div class="footer">
+            <span>RAYOLLA NEXUS AI // ELITE ENGINE // SECURE CONSOLE</span>
+            <span>PRESS ENTER TO EXECUTE</span>
+        </div>
+    </div>
+</div>
+
+<script>
+/* =========================================================
+   PARTICLES GENERATOR
+========================================================= */
+const particles = document.getElementById("particles");
+for (let i = 0; i < 90; i++) {
+    const particle = document.createElement("div");
+    particle.className = "particle";
+    particle.style.left = Math.random() * 100 + "%";
+    particle.style.animationDuration = (5 + Math.random() * 12) + "s";
+    particle.style.animationDelay = (-Math.random() * 15) + "s";
+    const size = 1.5 + Math.random() * 2.5;
+    particle.style.width = size + "px";
+    particle.style.height = size + "px";
+    particles.appendChild(particle);
+}
+
+const chat = document.getElementById("chat");
+const input = document.getElementById("userInput");
+const sendBtn = document.getElementById("sendBtn");
+const clock = document.getElementById("clock");
+
+function updateClock() {
+    clock.textContent = new Date().toLocaleTimeString([], { hour12: false });
+}
+setInterval(updateClock, 1000);
+updateClock();
+
+const sessionId = Math.random().toString(36).substring(2, 8).toUpperCase();
+document.getElementById("sessionId").textContent = sessionId;
+
+function escapeHTML(text) {
+    const div = document.createElement("div");
+    div.textContent = text;
+    return div.innerHTML;
+}
+
+/* =========================================================
+   EXPANDED KNOWLEDGE DATABASE (ELITE KNOWLEDGE & CODE)
+========================================================= */
+const knowledge = [
+{
+    module: "RECON",
+    threat: "info",
+    keywords: ["recon", "reconnaissance", "osint", "enumeration", "attack surface"],
+    title: "Reconnaissance & OSINT Intelligence",
+    answer: `
+        <p>Reconnaissance is the foundational phase of security evaluation, mapped across OSINT and active network fingerprinting.</p>
+        <div class="vocab">
+            <div class="vocab-row"><span class="vocab-key">PASSIVE OSINT</span><span class="vocab-value">Gathering public records without touching targets</span></div>
+            <div class="vocab-row"><span class="vocab-key">ACTIVE RECON</span><span class="vocab-value">Direct queries, port probing, and banner grabbing</span></div>
+        </div>
+        <div class="terminal-block">
+            <div class="terminal-titlebar"><span>bash - nmap scan simulation</span><div class="terminal-dots"><span></span><span></span><span></span></div></div>
+            <div class="terminal-content"># nmap -sV -p- target.domain.internal
+PORT   STATE SERVICE VERSION
+22/tcp open  ssh     OpenSSH 8.9p1
+80/tcp open  http    nginx/1.18.0
+443/tcp open ssl/http nginx/1.18.0</div>
+        </div>
+        <div class="tip"><b>DEFENSIVE NOTE //</b> Shrink your external footprint by auditing DNS records, exposed S3 buckets, and forgotten test subdomains.</div>
+    `
+},
+{
+    module: "WEBSEC",
+    threat: "high",
+    keywords: ["sql injection", "sqli", "sql"],
+    title: "SQL Injection (SQLi) Vulnerabilities",
+    answer: `
+        <p>SQL Injection occurs when untrusted user input directly modifies database command strings without parameter isolation.</p>
+        <div class="vocab">
+            <div class="vocab-row"><span class="vocab-key">IN-BAND SQLI</span><span class="vocab-value">Data retrieved directly via application response channels</span></div>
+            <div class="vocab-row"><span class="vocab-key">BLIND SQLI</span><span class="vocab-value">Extracting data through boolean or time-based inferences</span></div>
+        </div>
+        <div class="terminal-block">
+            <div class="terminal-titlebar"><span>python - secure parameterized code</span><div class="terminal-dots"><span></span><span></span><span></span></div></div>
+            <div class="terminal-content"># VULNERABLE:
+query = f"SELECT * FROM users WHERE username = '{user_input}'"
+
+# SECURE (Parameterized):
+cursor.execute("SELECT * FROM users WHERE username = %s", (user_input,))</div>
+        </div>
+        <div class="tip"><b>REMEDIATION //</b> Use parameterized statements or ORMs for all database interactions.</div>
+    `
+},
+{
+    module: "WEBSEC",
+    threat: "medium",
+    keywords: ["xss", "cross-site scripting", "scripting"],
+    title: "Cross-Site Scripting (XSS)",
+    answer: `
+        <p>XSS allows attackers to inject malicious JavaScript client-side into web applications viewed by other users.</p>
+        <div class="vocab">
+            <div class="vocab-row"><span class="vocab-key">STORED XSS</span><span class="vocab-value">Payload persisted in DB and served to visitors</span></div>
+            <div class="vocab-row"><span class="vocab-key">REFLECTED XSS</span><span class="vocab-value">Payload bounced instantly via request parameters</span></div>
+        </div>
+        <div class="tip"><b>DEFENSIVE RULE //</b> Implement strict context-aware output encoding and deploy robust Content Security Policy (CSP) headers.</div>
+    `
+},
+{
+    module: "NETWORK",
+    threat: "info",
+    keywords: ["zero trust", "network security", "zero-trust"],
+    title: "Zero Trust Architecture (ZTA)",
+    answer: `
+        <p>Zero Trust operates on the principle of <em>"Never trust, always verify."</em> Perimeter security is replaced with continuous identity validation.</p>
+        <div class="vocab">
+            <div class="vocab-row"><span class="vocab-key">MICRO-SEGMENTATION</span><span class="vocab-value">Isolating network zones to limit lateral movement</span></div>
+            <div class="vocab-row"><span class="vocab-key">LEAST PRIVILEGE</span><span class="vocab-value">Granting minimal required access rights</span></div>
+        </div>
+        <div class="tip"><b>ARCHITECTURE //</b> Enforce multi-factor authentication, device posture checks, and end-to-end encryption for all internal traffic.</div>
+    `
+},
+{
+    module: "BLUE TEAM",
+    threat: "medium",
+    keywords: ["siem", "edr", "monitoring", "blue team"],
+    title: "SIEM & EDR Threat Detection",
+    answer: `
+        <p>Security Information and Event Management (SIEM) aggregates logs, while Endpoint Detection and Response (EDR) monitors workstation activity.</p>
+        <div class="vocab">
+            <div class="vocab-row"><span class="vocab-key">TELEMETRY</span><span class="vocab-value">Real-time system behavior logs and process trees</span></div>
+            <div class="vocab-row"><span class="vocab-key">SOC</span><span class="vocab-value">Security Operations Center handling incident triage</span></div>
+        </div>
+        <div class="tip"><b>DETECTION ENGINEERING //</b> Write sigma rules to catch suspicious process spawns, lateral credential movement, and abnormal network beacons.</div>
+    `
+},
+{
+    module: "MALWARE",
+    threat: "high",
+    keywords: ["malware", "malware analysis", "reverse engineering"],
+    title: "Malware Analysis & Sandbox Sandboxing",
+    answer: `
+        <p>Malware analysis involves dissecting malicious payloads to understand behavior, persistence mechanisms, and command-and-control (C2) servers.</p>
+        <div class="vocab">
+            <div class="vocab-row"><span class="vocab-key">STATIC ANALYSIS</span><span class="vocab-value">Inspecting code, strings, headers without execution</span></div>
+            <div class="vocab-row"><span class="vocab-key">DYNAMIC ANALYSIS</span><span class="vocab-value">Running malware in an isolated sandbox environment</span></div>
+        </div>
+        <div class="tip"><b>SAFETY PROTOCOL //</b> Always perform malware unpacking and dynamic analysis inside air-gapped virtual machine test beds.</div>
+    `
+},
+{
+    module: "CRYPTO",
+    threat: "info",
+    keywords: ["cryptography", "aes", "rsa", "encryption", "crypto"],
+    title: "Modern Cryptography: AES & RSA",
+    answer: `
+        <p>Cryptography ensures data confidentiality and integrity through mathematical ciphers.</p>
+        <div class="vocab">
+            <div class="vocab-row"><span class="vocab-key">SYMMETRIC (AES)</span><span class="vocab-value">Fast encryption using a single shared secret key</span></div>
+            <div class="vocab-row"><span class="vocab-key">ASYMMETRIC (RSA)</span><span class="vocab-value">Public/Private key pair infrastructure for key exchange</span></div>
+        </div>
+        <div class="tip"><b>BEST PRACTICE //</b> Never build custom cryptographic algorithms; use industry standards like AES-GCM and Ed25519.</div>
+    `
+},
+{
+    module: "CLOUD",
+    threat: "medium",
+    keywords: ["cloud security", "cspm", "aws", "azure"],
+    title: "Cloud Security Posture Management (CSPM)",
+    answer: `
+        <p>CSPM tools automate security risk identification across cloud infrastructure (AWS, Azure, GCP) covering misconfigured storage and IAM roles.</p>
+        <div class="vocab">
+            <div class="vocab-row"><span class="vocab-key">IAM AUDITING</span><span class="vocab-value">Ensuring root and service accounts avoid wildcard privileges</span></div>
+            <div class="vocab-row"><span class="vocab-key">BUCKET POLICIES</span><span class="vocab-value">Preventing public exposure of cloud storage containers</span></div>
+        </div>
+        <div class="tip"><b>CLOUD RULE //</b> Implement infrastructure as code (IaC) scanning before deployment to catch misconfigurations early.</div>
+    `
+},
+{
+    module: "DFIR",
+    threat: "high",
+    keywords: ["dfir", "incident response", "forensics", "investigation"],
+    title: "Digital Forensics & Incident Response (DFIR)",
+    answer: `
+        <p>DFIR is the structured methodology for investigating security breaches, preserving evidence, and eradicating threats.</p>
+        <div class="vocab">
+            <div class="vocab-row"><span class="vocab-key">ACQUISITION</span><span class="vocab-value">Capturing volatile RAM and disk images safely</span></div>
+            <div class="vocab-row"><span class="vocab-key">CONTAINMENT</span><span class="vocab-value">Isolating compromised endpoints from the network</span></div>
+        </div>
+        <div class="tip"><b>CHAIN OF CUSTODY //</b> Maintain cryptographic hashes (SHA-256) of all acquired forensic disk images to preserve court admissibility.</div>
+    `
+},
+{
+    module: "CTF",
+    threat: "info",
+    keywords: ["ctf", "capture the flag", "challenges"],
+    title: "Capture The Flag (CTF) Competitions",
+    answer: `
+        <p>CTFs are cybersecurity competitions designed to test practical hacking, reverse engineering, cryptography, and forensics skills.</p>
+        <div class="vocab">
+            <div class="vocab-row"><span class="vocab-key">JEOPARDY STYLE</span><span class="vocab-value">Solving discrete challenges across web, pwn, crypto, rev</span></div>
+            <div class="vocab-row"><span class="vocab-key">ATTACK-DEFENSE</span><span class="vocab-value">Defending your own services while patching and hacking opponents</span></div>
+        </div>
+        <div class="tip"><b>MINDSET //</b> Document your methodology step-by-step; writeup creation reinforces deep technical understanding.</div>
+    `
+},
+{
+    module: "NETWORK",
+    threat: "info",
+    keywords: ["python port scanner", "port scanner", "scanner script", "code"],
+    title: "Python Asynchronous Port Scanner Script",
+    answer: `
+        <p>Here is a production-grade asynchronous Python port scanner utilizing sockets for rapid service discovery.</p>
+        <div class="terminal-block">
+            <div class="terminal-titlebar"><span>scanner.py - Python Script</span><div class="terminal-dots"><span></span><span></span><span></span></div></div>
+            <div class="terminal-content">import socket
+import sys
+
+target = "127.0.0.1"
+ports = [22, 80, 443, 3306, 8080]
+
+print(f"[*] Scanning target: {target}")
+for port in ports:
+    try:
+        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        s.settimeout(0.8)
+        result = s.connect_ex((target, port))
+        if result == 0:
+            print(f"[+] Port {port}: OPEN")
+        s.close()
+    except KeyboardInterrupt:
+        sys.exit()</div>
+        </div>
+        <div class="tip"><b>AUTOMATION //</b> Run security scripts strictly against authorized lab environments and test ranges.</div>
+    `
+}
+];
+
+/* =========================================================
+   CHAT ENGINE & LOGIC
+========================================================= */
+function addMessage(sender, htmlContent, isBot = true) {
+    const msgDiv = document.createElement("div");
+    msgDiv.className = `message ${isBot ? 'bot' : 'user'}`;
+
+    if (isBot) {
+        msgDiv.innerHTML = `<div class="avatar">🛡️</div><div class="bubble">${htmlContent}</div>`;
+    } else {
+        msgDiv.innerHTML = `<div class="avatar">👤</div><div class="bubble"><div style="color:#70aaff; font-family:'Courier New'; font-size:9px; margin-bottom:6px;">OPERATOR // QUERY</div><p>${escapeHTML(htmlContent)}</p></div>`;
+    }
+
+    chat.appendChild(msgDiv);
+    chat.scrollTop = chat.scrollHeight;
+}
+
+function processQuery(queryText) {
+    if (!queryText.trim()) return;
+
+    addMessage("user", queryText, false);
+    input.value = "";
+
+    const typingDiv = document.createElement("div");
+    typingDiv.className = "message bot";
+    typingDiv.innerHTML = `
+        <div class="avatar">🛡️</div>
+        <div class="bubble">
+            <div style="display:flex; align-items:center; gap:10px; color:#547b83; font-family:'Courier New'; font-size:9px; letter-spacing:1px;">
+                <span>ANALYZING INTELLIGENCE MATRIX</span>
+                <div style="display:flex; gap:4px;">
+                    <span style="width:6px; height:6px; background:var(--cyan); border-radius:50%; animation:statusPulse 1s infinite;"></span>
+                    <span style="width:6px; height:6px; background:var(--cyan); border-radius:50%; animation:statusPulse 1s infinite .2s;"></span>
+                    <span style="width:6px; height:6px; background:var(--cyan); border-radius:50%; animation:statusPulse 1s infinite .4s;"></span>
+                </div>
+            </div>
+        </div>
+    `;
+    chat.appendChild(typingDiv);
+    chat.scrollTop = chat.scrollHeight;
+
+    setTimeout(() => {
+        chat.removeChild(typingDiv);
+
+        const lowerQuery = queryText.toLowerCase();
+        let matched = knowledge.find(item => 
+            item.keywords.some(kw => lowerQuery.includes(kw))
+        );
+
+        if (matched) {
+            const responseHTML = `
+                <div class="response-header">
+                    <span class="module-tag">${matched.module} // DATABASE MATCH</span>
+                    <span class="threat ${matched.threat}">${matched.threat.toUpperCase()}</span>
+                </div>
+                <div class="cyber-title">${matched.title}</div>
+                ${matched.answer}
+            `;
+            addMessage("bot", responseHTML, true);
+        } else {
+            const fallbackHTML = `
+                <div class="response-header">
+                    <span class="module-tag">CORE // SYNTHESIS</span>
+                    <span class="threat info">INFO</span>
+                </div>
+                <div class="cyber-title">ANALYTICAL RESPONSE ARCHITECTURE</div>
+                <p>Query parsed for: <strong>"${escapeHTML(queryText)}"</strong></p>
+                <br>
+                <p>The Rayolla Nexus AI engine synthesizes defensive and offensive principles across multiple vectors. Try querying terms like <em>OSINT, SQLi, XSS, Zero Trust, SIEM, Malware, Cryptography, Cloud Security, DFIR, or Python scripts</em>.</p>
+                <div class="terminal-block">
+                    <div class="terminal-titlebar"><span>status.log</span><div class="terminal-dots"><span></span><span></span><span></span></div></div>
+                    <div class="terminal-content">[OK] Neural heuristic scan complete. No critical vulnerabilities found in query syntax.</div>
+                </div>
+                <div class="tip"><b>CONSOLE ADVICE //</b> Click any suggestion pill above or visit the Comic Hacker Hub button in the header.</div>
+            `;
+            addMessage("bot", fallbackHTML, true);
+        }
+    }, 850);
+}
+
+sendBtn.addEventListener("click", () => processQuery(input.value));
+input.addEventListener("keypress", (e) => { if (e.key === "Enter") processQuery(input.value); });
+
+function askSuggestion(text) {
+    input.value = text;
+    processQuery(text);
+}
+
+function clearChat() {
+    chat.innerHTML = `
+        <div class="message bot">
+            <div class="avatar">🛡️</div>
+            <div class="bubble">
+                <div class="response-header">
+                    <span class="module-tag">CORE // PURGE</span>
+                    <span class="threat info">SECURE</span>
+                </div>
+                <div class="cyber-title">BUFFER CLEARED</div>
+                <p>Session transcript memory purged. Ready for fresh operator commands.</p>
+            </div>
+        </div>
+    `;
+}
+
+function exportChat() {
+    alert("Encrypted session transcript exported successfully to local buffer.");
+}
+
+function showRandomTip() {
+    const tips = [
+        "Always enforce multi-factor authentication (MFA) across all administrative portals.",
+        "Practice defense-in-depth: never rely solely on a single perimeter firewall.",
+        "Conduct regular immutable backups and test your restoration procedures quarterly."
+    ];
+    const tip = tips[Math.floor(Math.random() * tips.length)];
+    addMessage("bot", `
+        <div class="response-header">
+            <span class="module-tag">CORE // ADVISORY</span>
+            <span class="threat info">TIP</span>
+        </div>
+        <div class="cyber-title">OPERATIONAL SECURITY DIRECTIVE</div>
+        <div class="tip"><b>DIRECTIVE //</b> ${tip}</div>
+    `, true);
+}
+
+function filterModule(modName) {
+    document.querySelectorAll('.module').forEach(m => m.classList.remove('active'));
+    event.target.classList.add('active');
+    if(modName === 'ALL') {
+        askSuggestion('Show me all core security modules');
+    } else {
+        askSuggestion('Explain ' + modName.toLowerCase());
+    }
+}
+</script>
+</body>
+</html>
